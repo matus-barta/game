@@ -46,7 +46,7 @@ async fn get_chunk_info(Path(id): Path<u64>) -> impl IntoResponse {
             id: 78768,
             model_id: "placable2.glb",
             transform: Vec3 {
-                x: 0.0,
+                x: 4.0,
                 y: 0.0,
                 z: 0.0,
             },

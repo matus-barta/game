@@ -4,3 +4,10 @@
 
 [node name="main_scene" type="Node3D"]
 script = ExtResource("1_w2twt")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.859781, 0.510663, 0, -0.510663, 0.859781, 0, 9.71725, 22.6606)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.732709, -0.305547, 0.608094, 0.0972531, 0.931384, 0.350807, -0.673557, -0.1979, 0.712149, 9.06877, 3.94136, 5.70712)
+shadow_enabled = true
