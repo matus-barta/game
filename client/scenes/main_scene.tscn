@@ -1,6 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://ch3qdyj0nwcgj"]
+[gd_scene load_steps=5 format=3 uid="uid://ch3qdyj0nwcgj"]
 
 [ext_resource type="Script" uid="uid://i13edg17qx4m" path="res://scenes/MainScene.cs" id="1_w2twt"]
+
+[sub_resource type="Environment" id="Environment_w2twt"]
+ssil_enabled = true
+sdfgi_enabled = true
+sdfgi_use_occlusion = true
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_pw63i"]
+
+[sub_resource type="Compositor" id="Compositor_7ykc4"]
 
 [node name="main_scene" type="Node3D"]
 script = ExtResource("1_w2twt")
@@ -11,3 +20,8 @@ transform = Transform3D(1, 0, 0, 0, 0.859781, 0.510663, 0, -0.510663, 0.859781, 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.732709, -0.305547, 0.608094, 0.0972531, 0.931384, 0.350807, -0.673557, -0.1979, 0.712149, 9.06877, 3.94136, 5.70712)
 shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_w2twt")
+camera_attributes = SubResource("CameraAttributesPractical_pw63i")
+compositor = SubResource("Compositor_7ykc4")

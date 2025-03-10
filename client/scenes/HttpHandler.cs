@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Godot;
 
@@ -6,6 +7,7 @@ public class HttpHandler
     private Node parentNode;
     private HttpRequest httpRequest;
     private HttpRequest.RequestCompletedEventHandler reqCompletedEventHandler;
+    private Action<byte[]> callback;
     public HttpHandler(Node parentNode)
     {
         this.parentNode = parentNode;
@@ -19,8 +21,9 @@ public class HttpHandler
         httpRequest.Request(url);
     }
 
-    public void RequestModel(string url)
+    public void RequestModel(string url, Action<byte[]> callback)
     {
+        this.callback = callback;
         httpRequest.RequestCompleted += ModelReq;
         httpRequest.Request(url);
     }
@@ -34,25 +37,8 @@ public class HttpHandler
 
     private void ModelReq(long result, long responseCode, string[] headers, byte[] body)
     {
-        AddGltfMesh(body);
+        callback(body);
         httpRequest.RequestCompleted -= ModelReq;
         httpRequest.QueueFree();
-    }
-
-    private void AddGltfMesh(byte[] gltfMesh)
-    {
-        var gltfDocumentLoad = new GltfDocument();
-        var gltfStateLoad = new GltfState();
-        var error = gltfDocumentLoad.AppendFromBuffer(gltfMesh, "", gltfStateLoad, 0);
-
-        if (error == Error.Ok)
-        {
-            var gltfSceneRootNode = gltfDocumentLoad.GenerateScene(gltfStateLoad);
-            parentNode.AddChild(gltfSceneRootNode);
-        }
-        else
-        {
-            GD.PrintErr($"Couldn't load glTF scene (error code: {error}).");
-        }
     }
 }

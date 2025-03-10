@@ -8,7 +8,7 @@ namespace Data
 {
 	public class Chunk
 	{
-		public UInt64 id { get; set; }
+		public ulong id { get; set; }
 		public string terrain_id { get; set; }
 		public List<WorldObject> world_objects { get; set; }
 		public List<Placable>? placables { get; set; }
@@ -23,31 +23,31 @@ namespace Data
 		}
 	}
 
-	public class WorldObject
+	public interface IModelObject
 	{
-		public UInt64 id { get; set; }
+		public ulong id { get; set; }
+		public string model_id { get; set; }
+		public Vec3 transform { get; set; }
+		public Vec3 rotation { get; set; }
+
+		public string GetModelUrl() { return "http://127.0.0.1:3000/assets/" + model_id; }
+	}
+
+	public class WorldObject : IModelObject
+	{
+		public ulong id { get; set; }
 		public string model_id { get; set; }
 		public Vec3 transform { get; set; }
 		public Vec3 rotation { get; set; }
 		public List<Placable>? placables { get; set; }
-
-		public string GetModelUrl()
-		{
-			return "http://127.0.0.1:3000/assets/" + model_id;
-		}
 	}
 
-	public class Placable
+	public class Placable : IModelObject
 	{
-		public UInt64 id { get; set; }
+		public ulong id { get; set; }
 		public string model_id { get; set; }
 		public Vec3 transform { get; set; }
 		public Vec3 rotation { get; set; }
-
-		public string GetModelUrl()
-		{
-			return "http://127.0.0.1:3000/assets/" + model_id;
-		}
 	}
 
 	public class Vec3

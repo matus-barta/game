@@ -40,7 +40,36 @@ async fn get_chunk_info(Path(id): Path<u64>) -> impl IntoResponse {
                 y: 0.0,
                 z: 0.0,
             },
-            placables: None,
+            placables: Some(vec![
+                Placable {
+                    id: 78768,
+                    model_id: "placable2.glb",
+                    transform: Vec3 {
+                        x: -4.0,
+                        y: 0.0,
+                        z: 0.0,
+                    },
+                    rotation: Vec3 {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 0.0,
+                    },
+                },
+                Placable {
+                    id: 78768,
+                    model_id: "placable2.glb",
+                    transform: Vec3 {
+                        x: -4.0,
+                        y: 3.0,
+                        z: 0.0,
+                    },
+                    rotation: Vec3 {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 0.0,
+                    },
+                },
+            ]),
         }],
         placables: Some(vec![Placable {
             id: 78768,
