@@ -12,6 +12,8 @@ public class HttpHandler
     {
         this.parentNode = parentNode;
         httpRequest = new HttpRequest();
+        httpRequest.UseThreads = true;
+        httpRequest.AcceptGZip = true;
         this.parentNode.AddChild(httpRequest);
     }
     public void CreateHttpRequest(HttpRequest.RequestCompletedEventHandler reqCompletedEventHandler, string url)

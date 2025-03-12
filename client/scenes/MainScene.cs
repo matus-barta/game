@@ -1,5 +1,7 @@
+using Data;
 using Godot;
 using System.Text;
+using System.Text.Json;
 
 public partial class MainScene : Node3D
 {

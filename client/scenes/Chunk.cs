@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Godot;
 
 namespace Data
@@ -14,7 +14,15 @@ namespace Data
 		public List<Placable>? placables { get; set; }
 		public static Chunk Deserialize(string json)
 		{
-			return JsonSerializer.Deserialize<Chunk>(json);
+			try
+			{
+				return JsonSerializer.Deserialize<Chunk>(json);
+			}
+			catch (Exception e)
+			{
+				GD.PrintErr(e.ToString());
+			}
+			return null;
 		}
 
 		public string GetModelUrl()
@@ -27,7 +35,7 @@ namespace Data
 	{
 		public ulong id { get; set; }
 		public string model_id { get; set; }
-		public Vec3 transform { get; set; }
+		public Vec3 position { get; set; }
 		public Vec3 rotation { get; set; }
 
 		public string GetModelUrl() { return "http://127.0.0.1:3000/assets/" + model_id; }
@@ -37,7 +45,7 @@ namespace Data
 	{
 		public ulong id { get; set; }
 		public string model_id { get; set; }
-		public Vec3 transform { get; set; }
+		public Vec3 position { get; set; }
 		public Vec3 rotation { get; set; }
 		public List<Placable>? placables { get; set; }
 	}
@@ -46,10 +54,36 @@ namespace Data
 	{
 		public ulong id { get; set; }
 		public string model_id { get; set; }
-		public Vec3 transform { get; set; }
+		public Vec3 position { get; set; }
 		public Vec3 rotation { get; set; }
+		public LightSource light_source { get; set; }
 	}
 
+
+	public class LightSource
+	{
+		public LightType light_type { get; set; }
+		public Color color { get; set; }
+		public float energy { get; set; }
+		public float size { get; set; }
+	}
+
+	public enum LightType
+	{
+		SPOT,
+		OMNI
+	}
+	public class Color
+	{
+		public float r { get; set; }
+		public float g { get; set; }
+		public float b { get; set; }
+
+		public Godot.Color ToGodot()
+		{
+			return new Godot.Color(r, g, b);
+		}
+	}
 	public class Vec3
 	{
 		public Vec3()
@@ -71,6 +105,11 @@ namespace Data
 		public Vector3 ToGodot()
 		{
 			return new Vector3(x, y, z);
+		}
+
+		override public string ToString()
+		{
+			return "(" + x + ", " + y + ", " + z + ")";
 		}
 
 		public static Vec3 FromGodot(Vector3 vec3)
