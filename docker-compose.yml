@@ -1,0 +1,54 @@
+services:
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    ports:
+      - "5332:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  cloudbeaver:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    environment:
+      CB_ADMIN_NAME: cloudbeaver
+      CB_ADMIN_PASSWORD: cloudbeaver
+    ports:
+      - "8978:8978"
+    volumes:
+      - cloudbeaver_data:/opt/cloudbeaver/workspace
+
+volumes:
+  minio_data:
+  postgres_data:
+  cloudbeaver_data:
