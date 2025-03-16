@@ -7,7 +7,7 @@ services:
       - "9001:9001"
     environment:
       MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio
+      MINIO_ROOT_PASSWORD: minioadmin
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 5s
@@ -21,34 +21,37 @@ services:
     container_name: postgres
     image: postgres:latest
     ports:
-      - "5332:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB:
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -d postgres -U postgres"]
       interval: 30s
       timeout: 10s
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  cloudbeaver:
+  pgadmin:
     depends_on:
       postgres:
         condition: service_healthy
-    image: dbeaver/cloudbeaver:latest
-    container_name: cloudbeaver
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
     environment:
-      CB_ADMIN_NAME: cloudbeaver
-      CB_ADMIN_PASSWORD: cloudbeaver
+      PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin
+      PGADMIN_LISTEN_PORT: 8888
+      PGADMIN_DISABLE_POSTFIX: true
     ports:
-      - "8978:8978"
+      - "8888:8888"
     volumes:
-      - cloudbeaver_data:/opt/cloudbeaver/workspace
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin_config/servers.json:/pgadmin4/servers.json
+      - ./pgadmin_config/preferences.json:/pgadmin4/preferences.json
 
 volumes:
   minio_data:
   postgres_data:
-  cloudbeaver_data:
+  pgadmin_data:
