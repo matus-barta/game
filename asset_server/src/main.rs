@@ -29,7 +29,7 @@ async fn get_chunk_info(Path(id): Path<u64>) -> impl IntoResponse {
     let chunk = Chunk {
         id,
         terrain_id: "floor.glb",
-        world_objects: vec![WorldObject {
+        world_objects: Some(vec![WorldObject {
             id: 222,
             model_id: "house.glb",
             position: Vec3 {
@@ -43,7 +43,7 @@ async fn get_chunk_info(Path(id): Path<u64>) -> impl IntoResponse {
                 z: 0.0,
             },
             placables: None,
-        }],
+        }]),
         placables: Some(vec![
             Placable {
                 id: 78768,
@@ -142,7 +142,7 @@ async fn get_chunk_info(Path(id): Path<u64>) -> impl IntoResponse {
 struct Chunk<'a> {
     id: u64,
     terrain_id: &'a str,
-    world_objects: Vec<WorldObject<'a>>,
+    world_objects: Option<Vec<WorldObject<'a>>>,
     placables: Option<Vec<Placable<'a>>>,
 }
 
