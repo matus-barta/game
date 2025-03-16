@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
 
-members = ["asset_server", "world_server", "login_server"]
+members = ["asset_server", "world_server", "login_server", "lib_db"]
