@@ -1,8 +1,8 @@
 # Dev environment setup
 
 - need docker installed
-- need to install diesel-cli
-  - on MacOS: `brew install diesel`
+- need to install sqlx-cli
+  - `cargo install sqlx-cli`
 
 ## To run dev services
 
@@ -11,10 +11,8 @@ cd tools
 docker-compose -up
 ```
 
-## Setup Diesel
-
-**probably ignore... sigh**
+## db sqlx-cli stuff
 
 ```bash
-export DIESEL_CONFIG_FILE="./lib_db/db/diesel.toml"
+sqlx migrate run
 ```
