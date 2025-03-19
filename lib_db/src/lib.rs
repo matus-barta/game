@@ -1,8 +1,10 @@
-use diesel::prelude::*;
+use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
-pub mod models;
-pub mod schema;
+pub async fn connect(db_url: String) -> Result<Pool<Postgres>, sqlx::Error> {
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&db_url)
+        .await?;
 
-pub fn connect(db_url: String) -> PgConnection {
-    PgConnection::establish(&db_url).unwrap_or_else(|_| panic!("Error connecting to {}", db_url))
+    Ok(pool)
 }
