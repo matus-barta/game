@@ -50,7 +50,6 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "axum-prometheus",
- "dotenvy",
  "lib_db",
  "metrics",
  "metrics-exporter-prometheus",
