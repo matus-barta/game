@@ -1,5 +1,15 @@
-use crate::world_data::*;
-use axum::{extract::Path, http::StatusCode, response::IntoResponse, Json};
+use std::{
+    fs::{self, File},
+    io::Write,
+};
+
+use crate::{fileupload::*, world_data::*, AppState};
+use axum::{
+    extract::{Multipart, Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
 
 pub async fn health() -> impl IntoResponse {
     (StatusCode::OK, "Service is healthy")
@@ -8,6 +18,63 @@ pub async fn health() -> impl IntoResponse {
 pub async fn chunk(Path(id): Path<u64>) -> impl IntoResponse {
     (StatusCode::OK, Json(get_chunk_info(id)))
 }
+
+pub async fn create_model(
+    State(appState): State<AppState>,
+    mut multipart: Multipart,
+) -> impl IntoResponse {
+    let mut file_name = String::new();
+    let mut chunk_number = 0;
+    let mut total_chunks = 0;
+    let mut chunk_data = Vec::new();
+
+    while let Some(field) = match multipart.next_field().await {
+        Ok(f) => f,
+        Err(err) => {
+            tracing::error!("Error reading multipart field: {:?}", err);
+            return StatusCode::BAD_REQUEST;
+        }
+    } {
+        let field_name = field.name().unwrap_or_default().to_string();
+        match field_name.as_str() {
+            "fileName" => file_name = sanitize_filename(&field.text().await.unwrap_or_default()),
+            "chunkNumber" => {
+                chunk_number = field.text().await.unwrap_or_default().parse().unwrap_or(0)
+            }
+            "totalChunks" => {
+                total_chunks = field.text().await.unwrap_or_default().parse().unwrap_or(0)
+            }
+            "chunk" => {
+                chunk_data = field
+                    .bytes()
+                    .await
+                    .unwrap_or_else(|_| Vec::new().into())
+                    .to_vec()
+            }
+            _ => {}
+        }
+    }
+
+    if file_name.is_empty() || chunk_data.is_empty() {
+        return StatusCode::BAD_REQUEST;
+    }
+
+    let temp_dir = format!("./uploads/temp/{}", file_name);
+    fs::create_dir_all(&temp_dir).unwrap_or_else(|_| {});
+
+    let chunk_path = format!("{}/chunk_{}", temp_dir, chunk_number);
+    let mut file = File::create(&chunk_path).unwrap();
+    file.write_all(&chunk_data).unwrap();
+
+    if is_upload_complete(&temp_dir, total_chunks) {
+        assemble_file(&temp_dir, &file_name, total_chunks).unwrap();
+        upload_to_s3_and_hash_and_store_in_db();
+    }
+
+    StatusCode::OK
+}
+
+fn upload_to_s3_and_hash_and_store_in_db() {}
 
 fn get_chunk_info(id: u64) -> Chunk<'static> {
     //TODO: Search DB for chunk and return it
