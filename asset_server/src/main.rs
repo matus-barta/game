@@ -1,7 +1,10 @@
 use axum::{extract::Path, http::StatusCode, response::IntoResponse, routing::get, Json, Router};
+use axum_prometheus::PrometheusMetricLayer;
 use serde::Serialize;
 use serde_repr::Serialize_repr;
-use tower_http::{compression::CompressionLayer, services::ServeDir};
+use tower_http::{compression::CompressionLayer, services::ServeDir, trace::TraceLayer};
+
+mod routes;
 
 #[tokio::main]
 async fn main() {
@@ -10,18 +13,32 @@ async fn main() {
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
+    let (prometheus_layer, metrics_handle) = PrometheusMetricLayer::pair();
+
     // build our application with a route
     let app = Router::new()
         .layer(CompressionLayer::new())
+        .layer(TraceLayer::new_for_http())
+        .layer(prometheus_layer)
         .nest_service("/assets", ServeDir::new("assets"))
-        .route("/chunk/{id}", get(get_chunk_info));
+        .route("/metrics", get(|| async move { metrics_handle.render() }))
+        .route("/chunk/{id}", get(get_chunk_info))
+        .route("/health", get(routes::health));
 
     // run our app with hyper
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
-        .unwrap();
-    tracing::info!("listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
+        .expect("Could not initialize TcpListener");
+
+    tracing::info!(
+        "listening on {}",
+        listener
+            .local_addr()
+            .expect("Could not convert listener to local address")
+    );
+    axum::serve(listener, app)
+        .await
+        .expect("Could not successfully create server");
 }
 
 async fn get_chunk_info(Path(id): Path<u64>) -> impl IntoResponse {
