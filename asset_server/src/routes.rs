@@ -1,15 +1,12 @@
-use std::{
-    fs::{self, File},
-    io::Write,
-};
-
-use crate::{fileupload::*, world_data::*, AppState};
+use crate::{utils::internal_error, world_data::*, AppState};
 use axum::{
+    body::Body,
     extract::{Multipart, Path, State},
     http::StatusCode,
-    response::IntoResponse,
+    response::{IntoResponse, Response},
     Json,
 };
+use sha2::{Digest, Sha256};
 
 pub async fn health() -> impl IntoResponse {
     (StatusCode::OK, "Service is healthy")
@@ -19,62 +16,76 @@ pub async fn chunk(Path(id): Path<u64>) -> impl IntoResponse {
     (StatusCode::OK, Json(get_chunk_info(id)))
 }
 
-pub async fn create_model(
-    State(appState): State<AppState>,
-    mut multipart: Multipart,
-) -> impl IntoResponse {
-    let mut file_name = String::new();
-    let mut chunk_number = 0;
-    let mut total_chunks = 0;
-    let mut chunk_data = Vec::new();
-
-    while let Some(field) = match multipart.next_field().await {
-        Ok(f) => f,
-        Err(err) => {
-            tracing::error!("Error reading multipart field: {:?}", err);
-            return StatusCode::BAD_REQUEST;
-        }
-    } {
-        let field_name = field.name().unwrap_or_default().to_string();
-        match field_name.as_str() {
-            "fileName" => file_name = sanitize_filename(&field.text().await.unwrap_or_default()),
-            "chunkNumber" => {
-                chunk_number = field.text().await.unwrap_or_default().parse().unwrap_or(0)
-            }
-            "totalChunks" => {
-                total_chunks = field.text().await.unwrap_or_default().parse().unwrap_or(0)
-            }
-            "chunk" => {
-                chunk_data = field
-                    .bytes()
-                    .await
-                    .unwrap_or_else(|_| Vec::new().into())
-                    .to_vec()
-            }
-            _ => {}
-        }
+pub async fn get_model(State(app_state): State<AppState>, id: String) -> impl IntoResponse {
+    if id.len() != 64 {
+        return (StatusCode::BAD_REQUEST, "Wrong id length");
     }
 
-    if file_name.is_empty() || chunk_data.is_empty() {
-        return StatusCode::BAD_REQUEST;
-    }
-
-    let temp_dir = format!("./uploads/temp/{}", file_name);
-    fs::create_dir_all(&temp_dir).unwrap_or_else(|_| {});
-
-    let chunk_path = format!("{}/chunk_{}", temp_dir, chunk_number);
-    let mut file = File::create(&chunk_path).unwrap();
-    file.write_all(&chunk_data).unwrap();
-
-    if is_upload_complete(&temp_dir, total_chunks) {
-        assemble_file(&temp_dir, &file_name, total_chunks).unwrap();
-        upload_to_s3_and_hash_and_store_in_db();
-    }
-
-    StatusCode::OK
+    (StatusCode::OK, "OK")
 }
 
-fn upload_to_s3_and_hash_and_store_in_db() {}
+pub async fn create_model(
+    State(app_state): State<AppState>,
+    mut multipart: Multipart,
+) -> Result<Response, (StatusCode, String)> {
+    let mut response_models: Vec<Model> = Vec::new();
+
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|err| (StatusCode::BAD_REQUEST, err.to_string()))?
+    {
+        let name = field.name().unwrap_or_default().to_string();
+        let file_name = field.file_name().unwrap_or_default().to_string();
+        let content_type = field.content_type().unwrap_or_default().to_string();
+        let data = field.bytes().await.unwrap_or_default();
+
+        //TODO: Sanitize filename
+
+        if file_name.is_empty() || data.is_empty() || content_type.is_empty() {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                "Filename, data or content_type is empty".to_string(),
+            ))?;
+        }
+        if content_type != "model/gltf-binary" {
+            return Err((StatusCode::BAD_REQUEST, "Wrong content type".to_string()))?;
+        }
+
+        let hash = Sha256::digest(&data);
+
+        let _response_data = app_state
+            .bucket
+            .put_object_with_content_type(format!("/{:X}", hash), &data, &content_type)
+            .await
+            .map_err(internal_error)?;
+
+        let db_response = sqlx::query_as!(
+            Model,
+            r#"INSERT INTO models VALUES ($1, $2) RETURNING id, model_name"#,
+            format!("{:X}", &hash),
+            &file_name
+        )
+        .fetch_one(&app_state.db_pool)
+        .await
+        .map_err(internal_error)?;
+
+        response_models.push(db_response);
+
+        tracing::debug!(
+            "Length of `{name}` (`{file_name}`: `{content_type}`) is {} bytes with hash {:x}",
+            data.len(),
+            hash
+        );
+    }
+    Ok(Response::builder()
+        .status(StatusCode::OK)
+        .header("Content-Type", "application/json")
+        .body(Body::from(
+            serde_json::to_string(&response_models).map_err(internal_error)?,
+        ))
+        .map_err(internal_error)?)
+}
 
 fn get_chunk_info(id: u64) -> Chunk<'static> {
     //TODO: Search DB for chunk and return it

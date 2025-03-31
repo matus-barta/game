@@ -35,6 +35,12 @@ pub struct LightSource {
     pub size: f32,
 }
 
+#[derive(Serialize)]
+pub struct Model {
+    pub id: String,
+    pub model_name: String,
+}
+
 #[derive(Serialize_repr)]
 #[repr(u8)]
 pub enum LightType {
