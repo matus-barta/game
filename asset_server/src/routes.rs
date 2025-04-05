@@ -16,18 +16,40 @@ pub async fn chunk(Path(id): Path<u64>) -> impl IntoResponse {
     (StatusCode::OK, Json(get_chunk_info(id)))
 }
 
-pub async fn get_model(State(app_state): State<AppState>, id: String) -> impl IntoResponse {
+pub async fn get_model(
+    State(app_state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<Json<crate::responses::Model>, (StatusCode, String)> {
     if id.len() != 64 {
-        return (StatusCode::BAD_REQUEST, "Wrong id length");
+        tracing::error!("Wrong id length: {:?}", id.len());
+        Err((StatusCode::BAD_REQUEST, "Wrong id length".to_string()))?
     }
 
-    (StatusCode::OK, "OK")
+    let db_response = sqlx::query_as!(Model, r#"SELECT * FROM models WHERE id = $1"#, id)
+        .fetch_optional(&app_state.db_pool)
+        .await
+        .map_err(internal_error)?
+        .ok_or_else(|| "Not found".to_string())
+        .map_err(|err| (StatusCode::NOT_FOUND, err))?;
+
+    let presign_get = app_state
+        .bucket
+        .presign_get(format!("/{}", db_response.id), 300, None)
+        .map_err(internal_error)?;
+
+    let response = crate::responses::Model {
+        url: presign_get,
+        id: db_response.id,
+        name: db_response.model_name,
+    };
+
+    Ok(Json(response))
 }
 
 pub async fn create_model(
     State(app_state): State<AppState>,
     mut multipart: Multipart,
-) -> Result<Response, (StatusCode, String)> {
+) -> Result<Json<Vec<Model>>, (StatusCode, String)> {
     let mut response_models: Vec<Model> = Vec::new();
 
     while let Some(field) = multipart
@@ -78,13 +100,7 @@ pub async fn create_model(
             hash
         );
     }
-    Ok(Response::builder()
-        .status(StatusCode::OK)
-        .header("Content-Type", "application/json")
-        .body(Body::from(
-            serde_json::to_string(&response_models).map_err(internal_error)?,
-        ))
-        .map_err(internal_error)?)
+    Ok(Json(response_models))
 }
 
 fn get_chunk_info(id: u64) -> Chunk<'static> {

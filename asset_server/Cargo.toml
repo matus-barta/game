@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 serde_repr = "0.1.20"
-axum = { version = "0.8.1", features = ["multipart"] }
+axum = { version = "0.8.1", features = ["multipart", "macros"] }
 axum-prometheus = "0.8"
 metrics = "0.24"
 metrics-exporter-prometheus = "0.16"

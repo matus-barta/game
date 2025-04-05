@@ -9,6 +9,7 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use tower_http::limit::RequestBodyLimitLayer;
 use tower_http::{compression::CompressionLayer, services::ServeDir, trace::TraceLayer};
 
+mod responses;
 mod routes;
 mod utils;
 mod world_data;
@@ -25,8 +26,8 @@ async fn main() {
         .init();
 
     let db_url = String::from("postgres://postgres:postgres@localhost/game");
-    let s3_access_key = String::from("E2ebW9OMPAkW3FHldAuL");
-    let s3_secret_key = String::from("UL16oJErzDCbZTHg6iqpjJomCtNliBY8oTy9mny7");
+    let s3_access_key = String::from("CsLi5CExwcUklaWQ7n4A");
+    let s3_secret_key = String::from("4jaDIfS4lzzkgT9GsJxsJdg39JXNM4hVigv42jJg");
     let s3_api = String::from("http://localhost:9000");
     let bucket_name = String::from("models");
 
@@ -85,7 +86,7 @@ async fn main() {
         .with_state(app_state);
 
     // run our app with hyper
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
         .await
         .expect("Could not initialize TcpListener");
 
