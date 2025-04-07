@@ -1,9 +1,12 @@
-use crate::{utils::internal_error, world_data::*, AppState};
+use crate::{
+    utils::{bad_request_error, internal_error},
+    world_data::*,
+    AppState,
+};
 use axum::{
-    body::Body,
     extract::{Multipart, Path, State},
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::IntoResponse,
     Json,
 };
 use sha2::{Digest, Sha256};
@@ -52,11 +55,7 @@ pub async fn create_model(
 ) -> Result<Json<Vec<Model>>, (StatusCode, String)> {
     let mut response_models: Vec<Model> = Vec::new();
 
-    while let Some(field) = multipart
-        .next_field()
-        .await
-        .map_err(|err| (StatusCode::BAD_REQUEST, err.to_string()))?
-    {
+    while let Some(field) = multipart.next_field().await.map_err(bad_request_error)? {
         let name = field.name().unwrap_or_default().to_string();
         let file_name = field.file_name().unwrap_or_default().to_string();
         let content_type = field.content_type().unwrap_or_default().to_string();
@@ -72,6 +71,7 @@ pub async fn create_model(
         }
         if content_type != "model/gltf-binary" {
             return Err((StatusCode::BAD_REQUEST, "Wrong content type".to_string()))?;
+            //TODO: create error into variable then pass to bad_req fn.. and wrap that fn inside Err()
         }
 
         let hash = Sha256::digest(&data);

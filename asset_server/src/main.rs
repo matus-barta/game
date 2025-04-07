@@ -1,3 +1,5 @@
+use std::env;
+
 use axum::{
     extract::DefaultBodyLimit,
     routing::{get, post},
@@ -25,12 +27,16 @@ async fn main() {
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
-    let db_url = String::from("postgres://postgres:postgres@localhost/game");
-    let s3_access_key = String::from("CsLi5CExwcUklaWQ7n4A");
-    let s3_secret_key = String::from("4jaDIfS4lzzkgT9GsJxsJdg39JXNM4hVigv42jJg");
-    let s3_api = String::from("http://localhost:9000");
-    let bucket_name = String::from("models");
+    let _ = dotenvy::dotenv(); //we try to load .env file we don't care if it fails because is expected if env file is missing the variables itself are initialized
 
+    let server_ip_port = env::var("SERVER_IP_PORT").unwrap_or("0.0.0.0:3000".into());
+    let db_url = env::var("DATABASE_URL").expect("Missing DATABASE_URL env var");
+
+    let s3_access_key = env::var("S3_ACCESS_KEY").expect("Missing S3_ACCESS_KEY env var");
+    let s3_secret_key = env::var("S3_SECRET_KEY").expect("Missing S3_SECRET_KEY env var");
+    let s3_api = env::var("S3_API_URL").expect("Missing S3_API_URL env var");
+
+    let bucket_name = String::from("models");
     let region = Region::Custom {
         region: "eu-central-1".to_owned(),
         endpoint: s3_api.to_owned(),
@@ -86,7 +92,7 @@ async fn main() {
         .with_state(app_state);
 
     // run our app with hyper
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    let listener = tokio::net::TcpListener::bind(server_ip_port)
         .await
         .expect("Could not initialize TcpListener");
 
