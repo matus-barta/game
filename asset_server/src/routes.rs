@@ -11,14 +11,20 @@ use axum::{
 };
 use sha2::{Digest, Sha256};
 
+/// GET -> /health
+/// returns JSON OK
 pub async fn health() -> impl IntoResponse {
     (StatusCode::OK, "Service is healthy")
 }
 
+/// GET -> /chunk/{id}
+/// returns JSON of chunk data
 pub async fn chunk(Path(id): Path<u64>) -> impl IntoResponse {
     (StatusCode::OK, Json(get_chunk_info(id)))
 }
 
+/// GET -> /model/{id}
+/// get model by hash (id) and presigned url to s3
 pub async fn get_model(
     State(app_state): State<AppState>,
     Path(id): Path<String>,
@@ -49,6 +55,9 @@ pub async fn get_model(
     Ok(Json(response))
 }
 
+/// POST -> /model
+/// allows to upload GLTF 3D model
+/// internally generates SHA-265 of the file and uploads to S3
 pub async fn create_model(
     State(app_state): State<AppState>,
     mut multipart: Multipart,
