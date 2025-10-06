@@ -17,7 +17,7 @@ locate by `id`
 
 Chunk id should be determined by position in the world. But this limits the world size, at least limits have to be determined.
 
-Lets make size of the chunk `1km^2 = 1000m x 1000m`, and limit the us to ~~256~~ `32chunks x 32chunks = 1024 chunks` , this is 1024km^2 (265 might be ok if we are going for WoW size).
+Lets make size of the chunk `1km^2 = 1000m x 1000m`, and limit the us to ~~256~~ `32chunks x 32chunks = 1024 chunks` , this is `1024km^2` (265 might be ok if we are going for WoW size).
 
 | GAME  | size in km^2 |
 | ----- | ------------ |

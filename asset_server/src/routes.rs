@@ -93,7 +93,7 @@ pub async fn create_model(
 
         let db_response = sqlx::query_as!(
             Model,
-            r#"INSERT INTO models VALUES ($1, $2) RETURNING id, model_name"#,
+            r#"INSERT INTO models VALUES ($1, $2) RETURNING id, asset_id, model_name"#,
             format!("{:X}", &hash),
             &file_name
         )
