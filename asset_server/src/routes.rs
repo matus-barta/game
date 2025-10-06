@@ -1,5 +1,5 @@
 use crate::{
-    utils::{bad_request_error, internal_error},
+    utils::error::{bad_request_error, internal_error},
     world_data::*,
     AppState,
 };
@@ -34,7 +34,7 @@ pub async fn get_model(
         Err((StatusCode::BAD_REQUEST, "Wrong id length".to_string()))?
     }
 
-    let db_response = sqlx::query_as!(Model, r#"SELECT * FROM models WHERE id = $1"#, id)
+    let db_response = sqlx::query_as!(Asset, r#"SELECT id,name FROM "Asset" WHERE id = $1"#, id)
         .fetch_optional(&app_state.db_pool)
         .await
         .map_err(internal_error)?
@@ -49,7 +49,7 @@ pub async fn get_model(
     let response = crate::responses::Model {
         url: presign_get,
         id: db_response.id,
-        name: db_response.model_name,
+        name: db_response.name,
     };
 
     Ok(Json(response))
@@ -61,8 +61,8 @@ pub async fn get_model(
 pub async fn create_model(
     State(app_state): State<AppState>,
     mut multipart: Multipart,
-) -> Result<Json<Vec<Model>>, (StatusCode, String)> {
-    let mut response_models: Vec<Model> = Vec::new();
+) -> Result<Json<Vec<Asset>>, (StatusCode, String)> {
+    let mut response_models: Vec<Asset> = Vec::new();
 
     while let Some(field) = multipart.next_field().await.map_err(bad_request_error)? {
         let name = field.name().unwrap_or_default().to_string();
@@ -92,8 +92,8 @@ pub async fn create_model(
             .map_err(internal_error)?;
 
         let db_response = sqlx::query_as!(
-            Model,
-            r#"INSERT INTO models VALUES ($1, $2) RETURNING id, asset_id, model_name"#,
+            Asset,
+            r#"INSERT INTO "Asset" VALUES ($1, $2) RETURNING id, name"#,
             format!("{:X}", &hash),
             &file_name
         )
