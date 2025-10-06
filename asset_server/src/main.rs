@@ -6,11 +6,12 @@ use axum::{
     Router,
 };
 use axum_prometheus::PrometheusMetricLayer;
-use s3::{creds::Credentials, Bucket, BucketConfiguration, Region};
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use s3::Bucket;
+use sqlx::{Pool, Postgres};
 use tower_http::limit::RequestBodyLimitLayer;
 use tower_http::{compression::CompressionLayer, services::ServeDir, trace::TraceLayer};
 
+mod helpers;
 mod responses;
 mod routes;
 mod utils;
@@ -36,40 +37,15 @@ async fn main() {
     let s3_secret_key = env::var("S3_SECRET_KEY").expect("Missing S3_SECRET_KEY env var");
     let s3_api = env::var("S3_API_URL").expect("Missing S3_API_URL env var");
 
-    let bucket_name = String::from("models");
-    let region = Region::Custom {
-        region: "eu-central-1".to_owned(),
-        endpoint: s3_api.to_owned(),
-    };
-
-    let credentials =
-        Credentials::new(Some(&s3_access_key), Some(&s3_secret_key), None, None, None).unwrap();
-
-    let mut bucket = Bucket::new(&bucket_name, region.clone(), credentials.clone())
-        .unwrap()
-        .with_path_style();
-
-    if !bucket.exists().await.unwrap() {
-        bucket = Bucket::create_with_path_style(
-            &bucket_name,
-            region,
-            credentials,
-            BucketConfiguration::default(),
-        )
-        .await
-        .unwrap()
-        .bucket;
-    }
-
-    let db = PgPoolOptions::new()
-        .max_connections(20)
-        .connect(&db_url)
-        .await
-        .expect("Unable to connect to DB");
-
     let app_state = AppState {
-        db_pool: db,
-        bucket,
+        db_pool: helpers::pg::init_pg(db_url).await,
+        bucket: helpers::s3::init_bucket(
+            s3_access_key,
+            s3_secret_key,
+            s3_api,
+            "assets".to_string(),
+        )
+        .await,
     };
 
     let (prometheus_layer, metrics_handle) = PrometheusMetricLayer::pair();
