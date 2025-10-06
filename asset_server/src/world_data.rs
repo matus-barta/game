@@ -36,10 +36,9 @@ pub struct LightSource {
 }
 
 #[derive(Serialize)]
-pub struct Model {
-    pub id: u64,
-    pub asset_id: String,
-    pub model_name: String,
+pub struct Asset {
+    pub id: String,
+    pub name: String,
 }
 
 #[derive(Serialize_repr)]
