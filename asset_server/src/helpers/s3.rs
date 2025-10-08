@@ -6,7 +6,7 @@ pub async fn init_bucket(
 ) -> s3::Bucket {
     let bucket_name = bucket;
     let region = s3::Region::Custom {
-        region: "eu-central-1".to_owned(),
+        region: "eu-central-1".to_owned(), //TODO: env for region
         endpoint: s3_api.to_owned(),
     };
 
