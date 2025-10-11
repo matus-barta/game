@@ -12,10 +12,9 @@ use tower_http::limit::RequestBodyLimitLayer;
 use tower_http::{compression::CompressionLayer, services::ServeDir, trace::TraceLayer};
 
 mod helpers;
-mod responses;
+mod models;
 mod routes;
 mod utils;
-mod world_data;
 
 #[tokio::main]
 async fn main() {
@@ -54,10 +53,7 @@ async fn main() {
     let app = Router::new()
         .nest_service("/assets", ServeDir::new("assets"))
         .route("/metrics", get(|| async move { metrics_handle.render() }))
-        .route("/chunk/{id}", get(routes::chunk))
-        .route("/health", get(routes::health))
-        .route("/model", post(routes::create_model))
-        .route("/model/{id}", get(routes::get_model))
+        .merge(routes::router())
         .layer(CompressionLayer::new())
         .layer(TraceLayer::new_for_http())
         .layer(prometheus_layer)
