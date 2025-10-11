@@ -4,15 +4,60 @@ datasource db {
 }
 
 model Asset {
-    id        String   @id
-    name      String   @unique @db.VarChar(64)
+    id        String   @id @db.VarChar(64)
+    name      String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    // Placable  Placable[]
+    placables Model[]
 }
 
-// model Placable {
-//     id      Int    @id @default(autoincrement())
-//     asset   Asset  @relation(fields: [assetId], references: [id])
-//     assetId String
-// }
+model Model {
+    id           Int         @id @default(autoincrement())
+    createdAt    DateTime    @default(now())
+    updatedAt    DateTime    @updatedAt
+    assetId      String
+    asset        Asset       @relation(fields: [assetId], references: [id])
+    positionX    Float
+    positionY    Float
+    positionZ    Float
+    rotationX    Float
+    rotationY    Float
+    rotationZ    Float
+    scaleFactor  Float
+    WorldModel   WorldModel? @relation(fields: [worldModelId], references: [id])
+    worldModelId Int?
+    Chunk        Chunk?      @relation(fields: [chunkId], references: [id])
+    chunkId      Int?
+}
+
+model WorldModel {
+    id               Int                @id @default(autoincrement())
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @updatedAt
+    models           Model[]
+    WorldModelObject WorldModelObject[]
+}
+
+model WorldModelObject {
+    id           Int        @id @default(autoincrement())
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    positionX    Float
+    positionY    Float
+    positionZ    Float
+    rotationX    Float
+    rotationY    Float
+    rotationZ    Float
+    worldModelId Int
+    worldModel   WorldModel @relation(fields: [worldModelId], references: [id])
+    Chunk        Chunk?     @relation(fields: [chunkId], references: [id])
+    chunkId      Int?
+}
+
+model Chunk {
+    id           Int                @id @default(autoincrement())
+    createdAt    DateTime           @default(now())
+    updatedAt    DateTime           @updatedAt
+    models       Model[]
+    worldObjects WorldModelObject[]
+}

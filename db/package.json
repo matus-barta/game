@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "studio": "pnpm dlx prisma studio",
-    "migrate": "pnpm dlx prisma migrate dev"
+    "migrate": "pnpm dlx prisma migrate dev",
+    "push": "pnpm dlx prisma db push"
   },
   "keywords": [],
   "author": "",
