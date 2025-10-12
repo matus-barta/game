@@ -1,13 +1,10 @@
 use std::env;
 
-use axum::{
-    extract::DefaultBodyLimit,
-    routing::{get, post},
-    Router,
-};
+use axum::{extract::DefaultBodyLimit, routing::get, Router};
 use axum_prometheus::PrometheusMetricLayer;
 use s3::Bucket;
 use sqlx::{Pool, Postgres};
+use tower_http::cors::CorsLayer;
 use tower_http::limit::RequestBodyLimitLayer;
 use tower_http::{compression::CompressionLayer, services::ServeDir, trace::TraceLayer};
 
@@ -58,8 +55,9 @@ async fn main() {
         .layer(TraceLayer::new_for_http())
         .layer(prometheus_layer)
         .layer(DefaultBodyLimit::disable())
+        .layer(CorsLayer::permissive())
         .layer(RequestBodyLimitLayer::new(
-            250 * 1024 * 1024, /* 250mb */
+            250 * 1024 * 1024, /* 250MiB */
         ))
         .with_state(app_state);
 

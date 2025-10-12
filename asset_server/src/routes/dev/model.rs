@@ -66,3 +66,17 @@ pub async fn create_model(
     }
     Ok(Json(response_models))
 }
+
+/// GET -> /dev/model
+/// returns all models in DB
+/// TODO: add limit
+pub async fn get_models(
+    State(app_state): State<AppState>,
+) -> Result<Json<Vec<Asset>>, (StatusCode, String)> {
+    let db_response = sqlx::query_as!(Asset, r#"SELECT id,name FROM "Asset""#,)
+        .fetch_all(&app_state.db_pool)
+        .await
+        .map_err(internal_error)?;
+
+    Ok(Json(db_response))
+}
