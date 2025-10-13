@@ -1,0 +1,28 @@
+name: Build Asset Server
+
+on:
+  push:
+    paths:
+      - "tools/asset_manager/**"
+      - ".github/workflows/asset_manager.yml"
+    branches:
+      - "master"
+      - "main"
+
+jobs:
+  build:
+    runs-on: build
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: https://gitea.home.anonymus09.com
+          username: ${{ vars.GITEA_USER }}
+          password: ${{ secrets.GITEA_PASSWD }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./tools/asset_manger
+          file: ./tools/asset_manager/Dockerfile
+          push: true
+          tags: gitea.home.anonymus09.com/admin/asset_manager:latest
