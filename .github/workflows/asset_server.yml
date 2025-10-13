@@ -18,8 +18,8 @@ jobs:
       - uses: docker/login-action@v3
         with:
           registry: http://gitea.home.anonymus09.com:3000
-          username: ${{ GITEA_USER }}
-          password: ${{ GITEA_PASSWD }}
+          username: ${{ vars.GITEA_USER }}
+          password: ${{ secrets.GITEA_PASSWD }}
       - uses: docker/build-push-action@v6
         with:
           context: ./www
