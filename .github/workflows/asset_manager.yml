@@ -26,3 +26,5 @@ jobs:
           file: ./tools/asset_manager/Dockerfile
           push: true
           tags: gitea.home.anonymus09.com/admin/asset_manager:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
