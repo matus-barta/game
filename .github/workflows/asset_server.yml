@@ -23,6 +23,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: ./asset_server
-          file: ./Dockerfile
+          file: ./asset_server/Dockerfile
           push: true
           tags: gitea.home.anonymus09.com/admin/asset_server:latest
