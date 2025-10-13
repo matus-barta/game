@@ -32,9 +32,9 @@ jobs:
           use-fallback: false # optional, use github actions cache fallback, default true
 
           path: ${{ runner.temp }}/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-asset_manager-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-asset_manager-
 
       - name: Login to private Gitea instance
         uses: docker/login-action@v3
