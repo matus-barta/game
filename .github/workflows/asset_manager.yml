@@ -18,9 +18,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
+      - name: Cache Docker layers - S3 local cache
+        uses: tespkg/actions-cache@v1
         with:
+          endpoint: localhost # optional, default s3.amazonaws.com
+          port: 9000
+          insecure: true # optional, use http instead of https. default false
+          region: eu-central-1
+          accessKey: ${{ secrets.MINIO_ACCESS_KEY }} # required
+          secretKey: ${{ secrets.MINIO_SECRET_KEY }} # required
+          # sessionToken: "AQoDYXdzEJraDcqRtz123" # optional
+          bucket: actions-cache # required
+          use-fallback: false # optional, use github actions cache fallback, default true
+
           path: ${{ runner.temp }}/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
