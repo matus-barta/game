@@ -21,7 +21,7 @@ jobs:
       - name: Cache Docker layers - S3 local cache
         uses: tespkg/actions-cache@v1
         with:
-          endpoint: localhost:9000 # optional, default s3.amazonaws.com
+          endpoint: http://localhost:9000 # optional, default s3.amazonaws.com
           insecure: true # optional, use http instead of https. default false
           accessKey: ${{ secrets.MINIO_ACCESS_KEY }} # required
           secretKey: ${{ secrets.MINIO_SECRET_KEY }} # required
