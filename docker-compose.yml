@@ -70,6 +70,8 @@ services:
       - "8888:8888"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin_config/servers.json:/pgadmin4/servers.json
+      - ./pgadmin_config/preferences.json:/pgadmin4/preferences.json
 
   db_prisma:
     depends_on:
