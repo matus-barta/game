@@ -38,8 +38,8 @@ jobs:
           cp ./tools/pgadmin_config/servers.json ~/deploy/pgadmin_config/servers.json
 
       - name: Update and run compose
-        working-directory: ~/deploy
         run: |
+          cd ~/deploy
           docker compose pull && docker compose up -d
 
       - name: Prune docker
