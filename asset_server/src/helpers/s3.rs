@@ -5,12 +5,14 @@ pub async fn init_bucket(
     bucket: String,
 ) -> s3::Bucket {
     let bucket_name = bucket;
+
+    let url = url::Url::parse(&s3_api).unwrap();
+    validate_bucket_name(&bucket_name);
+
     let region = s3::Region::Custom {
         region: "eu-central-1".to_owned(), //TODO: env for region
-        endpoint: s3_api.to_owned(),
+        endpoint: remove_trailing_slash(url.to_string()),
     };
-
-    validate_bucket_name(&bucket_name);
 
     let credentials =
         s3::creds::Credentials::new(Some(&s3_access_key), Some(&s3_secret_key), None, None, None)
@@ -40,5 +42,13 @@ fn validate_bucket_name(bucket_name: &String) {
         if c.is_uppercase() {
             panic!("Uppercase in bucket name!")
         }
+    }
+}
+
+fn remove_trailing_slash(url: String) -> String {
+    if url.ends_with("/") {
+        return url.to_string()[0..url.len() - 1].to_string();
+    } else {
+        url
     }
 }

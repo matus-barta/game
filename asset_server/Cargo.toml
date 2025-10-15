@@ -27,3 +27,4 @@ s3-tokio = { version = "0.39", features = ["no-verify-ssl", "http"] }
 rustls = "0.23"
 serde_json = "1.0"
 dotenvy = "0.15"
+url = "2.5.7"
