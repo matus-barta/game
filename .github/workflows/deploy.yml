@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - ".github/workflows/deploy.yml"
+      - "docker-compose.yml"
     branches:
       - "master"
       - "main"
