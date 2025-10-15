@@ -21,11 +21,13 @@ jobs:
       - name: Create deploy folder
         run: |
           mkdir -p ~/deploy
+          mkdir -p ~/deploy/pgadmin_config
 
       - name: Copy files
         run: |
           cp ./docker-compose.yml ~/deploy/docker-compose.yml
-          cp -r ./tools/pgadmin_config ~/deploy/pgadmin_config
+          cp ./tools/pgadmin_config/preferences.json ~/deploy/pgadmin_config/preferences.json
+          cp ./tools/pgadmin_config/servers.json ~/deploy/pgadmin_config/servers.json
 
       - name: Update and run compose
         run: |

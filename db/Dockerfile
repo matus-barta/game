@@ -7,13 +7,9 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY package.json ./
-COPY pnpm-lock.yaml ./
+COPY . .
 RUN pnpm dlx prisma
 RUN pnpm install --frozen-lockfile
-
-COPY schema.prisma ./
-COPY migrations ./migrations
 
 # start the application
 CMD ["pnpm", "run", "deploy"]
