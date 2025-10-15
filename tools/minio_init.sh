@@ -34,7 +34,7 @@ mc admin policy create local "${S3_BUCKET}"-rw /tmp/"${S3_BUCKET}"-rw.json
 echo "Policy created."
 
 mc admin accesskey create local --access-key "$S3_ACCESS_KEY" --secret-key "$S3_SECRET_KEY"
-echo "Access key '$ACCESS_KEY' created."
+echo "Access key '$S3_ACCESS_KEY' created."
 
 mc admin policy attach local --user "${S3_ACCESS_KEY}" "${S3_BUCKET}"-rw
 echo "Policy attached."
