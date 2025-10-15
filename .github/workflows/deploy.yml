@@ -2,6 +2,13 @@ name: Deploy Services
 
 # Only trigger, when the build workflow succeeded
 on:
+  push:
+    paths:
+      - ".github/workflows/deploy.yml"
+    branches:
+      - "master"
+      - "main"
+
   workflow_run:
     workflows:
       [
