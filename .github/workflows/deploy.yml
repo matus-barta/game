@@ -34,8 +34,6 @@ jobs:
         run: |
           cp ./docker-compose.yml ~/deploy/docker-compose.yml
           cp ./tools/minio_init.sh ~/deploy/minio_init.sh
-          cp ./tools/pgadmin_config/preferences.json ~/deploy/pgadmin_config/preferences.json
-          cp ./tools/pgadmin_config/servers.json ~/deploy/pgadmin_config/servers.json
 
       - name: Update and run compose
         run: |
