@@ -19,10 +19,14 @@ async fn main() {
         .install_default()
         .expect("rustls error");
 
+    const TRACING_LVL: tracing::Level = if cfg!(debug_assertions) {
+        tracing::Level::DEBUG
+    } else {
+        tracing::Level::INFO
+    };
+
     // initialize tracing
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .init();
+    tracing_subscriber::fmt().with_max_level(TRACING_LVL).init();
 
     let _ = dotenvy::dotenv(); //we try to load .env file we don't care if it fails because is expected if env file is missing the variables itself are initialized
 
