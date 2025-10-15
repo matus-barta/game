@@ -1,0 +1,33 @@
+name: Deploy Services
+
+on:
+  push:
+    paths:
+      - "./docker-compose.yml"
+      - ".github/workflows/deploy.yml"
+      - "asset_server/**"
+      - ".github/workflows/asset_server.yml"
+      - "tools/asset_manager/**"
+      - ".github/workflows/asset_manager.yml"
+    branches:
+      - "master"
+      - "main"
+
+jobs:
+  deploy:
+    runs-on: srv
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Copy files
+        run: |
+          cp ./docker-compose.yml ~/deploy/docker-compose.yml
+          cp -r ./tools/pgadmin_config ~/deploy/pgadmin_config
+
+      - name: Update and run compose
+        run: |
+          docker-compose pull && docker-compose up -d
+
+      - name: Prune docker
+        run: |
+          docker system prune
