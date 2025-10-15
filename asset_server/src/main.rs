@@ -32,16 +32,12 @@ async fn main() {
     let s3_access_key = env::var("S3_ACCESS_KEY").expect("Missing S3_ACCESS_KEY env var");
     let s3_secret_key = env::var("S3_SECRET_KEY").expect("Missing S3_SECRET_KEY env var");
     let s3_api = env::var("S3_API_URL").expect("Missing S3_API_URL env var");
+    let s3_bucket = env::var("S3_BUCKET").expect("Missing S3_BUCKET env var");
+    //let s3_region = env::var("S3_REGION").unwrap_or("eu-central-1".into()); //TODO: not implemented rn
 
     let app_state = AppState {
         db_pool: helpers::pg::init_pg(db_url).await,
-        bucket: helpers::s3::init_bucket(
-            s3_access_key,
-            s3_secret_key,
-            s3_api,
-            "assets".to_string(),
-        )
-        .await,
+        bucket: helpers::s3::init_bucket(s3_access_key, s3_secret_key, s3_api, s3_bucket).await,
     };
 
     let (prometheus_layer, metrics_handle) = PrometheusMetricLayer::pair();
