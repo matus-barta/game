@@ -1,17 +1,16 @@
 name: Deploy Services
 
+# Only trigger, when the build workflow succeeded
 on:
-  push:
-    paths:
-      - "./docker-compose.yml"
-      - ".github/workflows/deploy.yml"
-      - "asset_server/**"
-      - ".github/workflows/asset_server.yml"
-      - "tools/asset_manager/**"
-      - ".github/workflows/asset_manager.yml"
-    branches:
-      - "master"
-      - "main"
+  workflow_run:
+    workflows:
+      [
+        "Asset Manager - build",
+        "Asset Server - build",
+        "Prisma DB config - build",
+      ]
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -34,4 +33,4 @@ jobs:
 
       - name: Prune docker
         run: |
-          docker system prune
+          docker system prune -f

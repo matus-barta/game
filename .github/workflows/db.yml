@@ -1,10 +1,10 @@
-name: Asset Server - build
+name: Prisma DB config - build
 
 on:
   push:
     paths:
-      - "asset_server/**"
-      - ".github/workflows/asset_server.yml"
+      - "db/**"
+      - ".github/workflows/db.yml"
     branches:
       - "master"
       - "main"
@@ -27,14 +27,13 @@ jobs:
           region: eu-central-1
           accessKey: ${{ secrets.MINIO_ACCESS_KEY }} # required
           secretKey: ${{ secrets.MINIO_SECRET_KEY }} # required
-          # sessionToken: "AQoDYXdzEJraDcqRtz123" # optional
           bucket: actions-cache # required
           use-fallback: false # optional, use github actions cache fallback, default true
 
           path: ${{ runner.temp }}/.buildx-cache
-          key: ${{ runner.os }}-buildx-asset_server-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-db-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-asset_server-
+            ${{ runner.os }}-buildx-db-
 
       - name: Login to private Gitea instance
         uses: docker/login-action@v3
@@ -46,10 +45,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./asset_server
-          file: ./asset_server/Dockerfile
+          context: ./db
+          file: ./db/Dockerfile
           push: true
-          tags: gitea.home.anonymus09.com/admin/asset_server:latest
+          tags: gitea.home.anonymus09.com/admin/db:latest
           cache-from: type=local,src=${{ runner.temp }}/.buildx-cache
           cache-to: type=local,dest=${{ runner.temp }}/.buildx-cache-new,mode=max
 

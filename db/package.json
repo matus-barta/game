@@ -5,6 +5,7 @@
   "scripts": {
     "studio": "pnpm dlx prisma studio",
     "migrate": "pnpm dlx prisma migrate dev",
+    "deploy": "pnpm dlx prisma migrate deploy",
     "push": "pnpm dlx prisma db push"
   },
   "keywords": [],

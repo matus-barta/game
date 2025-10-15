@@ -2,6 +2,7 @@ services:
   minio:
     container_name: minio
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -21,6 +22,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres:18.0
+    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
@@ -40,6 +42,7 @@ services:
         condition: service_healthy
     image: dpage/pgadmin4:latest
     container_name: pgadmin
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
       PGADMIN_DEFAULT_PASSWORD: pgadmin
@@ -53,14 +56,26 @@ services:
       - ./pgadmin_config/servers.json:/pgadmin4/servers.json
       - ./pgadmin_config/preferences.json:/pgadmin4/preferences.json
 
+  db_prisma:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: gitea.home.anonymus09.com/admin/db:latest
+    container_name: db_prisma
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres/game
+
   asset_server:
     depends_on:
       postgres:
         condition: service_healthy
       minio:
         condition: service_healthy
+      db_prisma:
+        condition: service_completed_successfully
     image: gitea.home.anonymus09.com/admin/asset_server:latest
     container_name: asset_server
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres/game
       S3_ACCESS_KEY: SGrID2dcQbBjAxikEEzb
@@ -72,8 +87,10 @@ services:
 
   asset_manager:
     depends_on:
-      - asset_server
+      asset_server:
+        condition: service_started
     image: gitea.home.anonymus09.com/admin/asset_manager:latest
+    restart: unless-stopped
     container_name: asset_manager
     ports:
       - "3000:3000"
