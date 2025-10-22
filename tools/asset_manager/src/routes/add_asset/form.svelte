@@ -6,8 +6,10 @@
     type SuperValidated,
     type Infer,
     superForm,
+    fileProxy
   } from "sveltekit-superforms";
   import { zod4 } from 'sveltekit-superforms/adapters';
+
  
   let { data }: { data: { form: SuperValidated<Infer<FormSchema>> } } =
     $props();
@@ -15,8 +17,11 @@
   const form = superForm(data.form, {
     validators: zod4(formSchema),
   });
- 
+
+  const file = fileProxy(form, "file")
+
   const { form: formData, enhance } = form;
+ 
 </script>
  
 <form method="POST" use:enhance enctype="multipart/form-data">
@@ -24,11 +29,11 @@
     <Form.Control>
       {#snippet children({ props })}
         <Form.Label>Asset to upload.</Form.Label>
-        <Input {...props} type="file"/>
+        <Input {...props} type="file" bind:files={$file}/>
       {/snippet}
     </Form.Control>
     <Form.Description>Upload new asset.</Form.Description>
-    <Form.FieldErrors />
+    <Form.FieldErrors  />
   </Form.Field>
   <Form.Button>Upload</Form.Button>
 </form>
