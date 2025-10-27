@@ -20,7 +20,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:latest
+    image: postgres:18
     ports:
       - "5432:5432"
     environment:
@@ -32,7 +32,7 @@ services:
       timeout: 10s
       retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
   pgadmin:
     depends_on:
