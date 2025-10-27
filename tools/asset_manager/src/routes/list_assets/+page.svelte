@@ -3,11 +3,13 @@
 	let { data }: PageProps = $props();
 </script>
 
-
 <dir class="grid auto-rows-min grid-cols-2 gap-4">
-    {#each data.models as model}
-        <span>{model.id}</span>
-        <span>{model.name}</span>
-    {/each}
-
+	{#if data.models != undefined && data.models.length > 0}
+		{#each data.models as model}
+			<span>{model.id}</span>
+			<span>{model.name}</span>
+		{/each}
+	{:else}
+		<h3>Empty array</h3>
+	{/if}
 </dir>
