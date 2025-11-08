@@ -104,16 +104,6 @@ services:
     ports:
       - "3001:3001"
 
-  asset_manager:
-    depends_on:
-      asset_server:
-        condition: service_started
-    image: gitea.home.anonymus09.com/admin/asset_manager:latest
-    restart: unless-stopped
-    container_name: asset_manager
-    ports:
-      - "3000:3000"
-
 volumes:
   minio_data:
   postgres_data:
