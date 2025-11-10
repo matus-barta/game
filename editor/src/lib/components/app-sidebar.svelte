@@ -2,6 +2,7 @@
 	import VersionSwitcher from './version-switcher.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { page } from '$app/state';
+	import Separator from './ui/separator/separator.svelte';
 
 	export interface Data {
 		navMain: {
@@ -21,7 +22,7 @@
 	}
 </script>
 
-<Sidebar.Root>
+<Sidebar.Root variant="floating">
 	<Sidebar.Header>
 		<VersionSwitcher />
 	</Sidebar.Header>
@@ -46,5 +47,8 @@
 			</Sidebar.Group>
 		{/each}
 	</Sidebar.Content>
-	<Sidebar.Rail />
+	<Sidebar.Footer>
+		<Separator />
+		<span class="">Status</span>
+	</Sidebar.Footer>
 </Sidebar.Root>

@@ -1,7 +1,10 @@
 <script lang="ts">
+	import Toolbar from '$lib/components/toolbar.svelte';
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
 </script>
+
+<Toolbar />
 
 <dir class="grid auto-rows-min grid-cols-2 gap-4">
 	{#if data.models != undefined && data.models.length > 0}

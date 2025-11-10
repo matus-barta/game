@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Toolbar from '$lib/components/toolbar.svelte';
 	import { invoke } from '@tauri-apps/api/core';
 
 	let name = $state('');
@@ -10,6 +11,8 @@
 		greetMsg = await invoke('greet', { name });
 	}
 </script>
+
+<Toolbar />
 
 <main class="container">
 	<h1>Welcome to Tauri + Svelte</h1>

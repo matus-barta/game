@@ -8,7 +8,7 @@
 	import { zod4 } from 'sveltekit-superforms/adapters';
 
 	import { env } from '$env/dynamic/public';
-		import { preventDefault } from 'svelte/legacy';
+	import { preventDefault } from 'svelte/legacy';
 
 	let { data } = $props();
 
@@ -41,18 +41,17 @@
 	// 	console.log('errors:', $errors);
 	// });
 
-const handleSubmit = (e: any) => {
-	// getting the action url
+	const handleSubmit = (e: any) => {
+		// getting the action url
 
-		const ACTION_URL = e.target.action
+		const ACTION_URL = e.target.action;
 
-		const formData = new FormData(e.target)
-		const data = new URLSearchParams()
+		const formData = new FormData(e.target);
+		const data = new URLSearchParams();
 
-		console.log(formData, data)
-	//saviour: https://github.com/sveltejs/examples/blob/main/examples/sveltekit-file-uploads-nodejs/src/routes/%2Bpage.svelte
-
-}
+		console.log(formData, data);
+		//saviour: https://github.com/sveltejs/examples/blob/main/examples/sveltekit-file-uploads-nodejs/src/routes/%2Bpage.svelte
+	};
 </script>
 
 <form
