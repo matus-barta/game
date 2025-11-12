@@ -1,8 +1,4 @@
-use crate::{
-    models::{responses::Model, world_data::*},
-    utils::error::internal_error,
-    AppState,
-};
+use crate::{models::world_data::*, utils::error::internal_error, AppState};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -14,7 +10,7 @@ use axum::{
 pub async fn get_model(
     State(app_state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<Json<Model>, (StatusCode, String)> {
+) -> Result<Json<shared::requests::Model>, (StatusCode, String)> {
     if id.len() != 64 {
         tracing::error!("Wrong id length: {:?}", id.len());
         Err((StatusCode::BAD_REQUEST, "Wrong id length".to_string()))?
@@ -32,7 +28,7 @@ pub async fn get_model(
         .presign_get(format!("/{}", db_response.id), 300, None)
         .map_err(internal_error)?;
 
-    let response = Model {
+    let response = shared::requests::Model {
         url: presign_get,
         id: db_response.id,
         name: db_response.name,

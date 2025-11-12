@@ -1,3 +1,10 @@
+use shared::requests::Model;
+use tauri_plugin_http::reqwest;
+
+use crate::config::get_config;
+
+mod config;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -5,8 +12,16 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn get_model_list() -> String {
-    format!("Hello! You've been greeted from Rust!")
+async fn get_model_list() -> Option<Model> {
+    if let Ok(config) = get_config() {
+        if let Ok(res) = reqwest::get(config.asset_server_url).await {
+            if let Ok(model) = res.json::<Model>().await {
+                return Some(model);
+            }
+        }
+    }
+
+    None
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -24,7 +39,7 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, get_model_list])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

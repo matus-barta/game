@@ -53,6 +53,23 @@ services:
       - ./pgadmin_config/servers.json:/pgadmin4/servers.json
       - ./pgadmin_config/preferences.json:/pgadmin4/preferences.json
 
+  minio-init:
+    container_name: minio-init
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minioadmin
+      S3_ACCESS_KEY: KVDqxwkTPkfro3XMktkU
+      S3_SECRET_KEY: BIC22YgQLIugmbwLO1cG9A24dGRLotiSaEQCcMM9
+      S3_BUCKET: asset
+      S3_API_URL: http://localhost:9000
+    entrypoint: bash ./init.sh
+    volumes:
+      - ./minio_init.sh:/init.sh
+
 volumes:
   minio_data:
   postgres_data:
