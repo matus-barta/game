@@ -12,16 +12,25 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn get_model_list() -> Option<Model> {
-    if let Ok(config) = get_config() {
-        if let Ok(res) = reqwest::get(config.asset_server_url).await {
-            if let Ok(model) = res.json::<Model>().await {
-                return Some(model);
-            }
-        }
-    }
+async fn get_model_list() -> Result<Model, String> {
+    println!("get model list invoke");
+    let config = get_config().map_err(|err| err.to_string())?;
+    println!("config done");
+    let res = reqwest::get(config.asset_server_url)
+        .await
+        .map_err(|err| err.to_string())?;
+    println!("{:?}", res.text().await);
 
-    None
+    let model: Model = {
+        Model {
+            url: "".to_string(),
+            id: "".to_string(),
+            name: "".to_string(),
+        }
+    }; // = res.json::<Model>().await.map_err(|err| err.to_string())?;
+    println!("model");
+
+    return Ok(model);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
