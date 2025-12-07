@@ -23,6 +23,13 @@ pub async fn get_model(
         .ok_or_else(|| "Not found".to_string())
         .map_err(|err| (StatusCode::NOT_FOUND, err))?;
 
+    //validate the file exists
+    let _ = app_state
+        .bucket
+        .get_object(format!("/{}", db_response.id))
+        .await
+        .map_err(internal_error)?;
+
     let presign_get = app_state
         .bucket
         .presign_get(format!("/{}", db_response.id), 300, None)
