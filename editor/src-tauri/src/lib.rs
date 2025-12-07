@@ -1,4 +1,4 @@
-use shared::requests::Model;
+use shared::requests::Asset;
 use tauri_plugin_http::reqwest;
 
 use crate::config::get_config;
@@ -12,23 +12,20 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn get_model_list() -> Result<Model, String> {
+async fn get_model_list() -> Result<Vec<Asset>, String> {
     println!("get model list invoke");
     let config = get_config().map_err(|err| err.to_string())?;
-    println!("config done");
-    let res = reqwest::get(config.asset_server_url)
+    let res = reqwest::get(format!("{}/dev/model", config.asset_server_url))
         .await
         .map_err(|err| err.to_string())?;
-    println!("{:?}", res.text().await);
 
-    let model: Model = {
-        Model {
-            url: "".to_string(),
-            id: "".to_string(),
-            name: "".to_string(),
-        }
-    }; // = res.json::<Model>().await.map_err(|err| err.to_string())?;
-    println!("model");
+    //println!("{:?}", res.text().await);
+
+    let model = res
+        .json::<Vec<Asset>>()
+        .await
+        .map_err(|err| err.to_string())?;
+    println!("model: {:?}", model);
 
     return Ok(model);
 }

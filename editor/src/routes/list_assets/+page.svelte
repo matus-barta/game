@@ -6,13 +6,27 @@
 
 <Toolbar />
 
-<dir class="grid auto-rows-min grid-cols-2 gap-4">
-	{#if data.models != undefined && data.models.length > 0}
-		{#each data.models as model}
-			<span>{model.id}</span>
-			<span>{model.name}</span>
-		{/each}
+	{#if data.asset != undefined && data.asset.length > 0}
+		<table class="table-auto w-full">
+			<thead class="bg-accent">
+				<tr>
+					<th class="px-2 text-left">ID</th>
+					<th class="px-2 text-left">Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each data.asset as asset}
+					<tr>
+						<td class="px-2">
+							{asset.id}
+						</td>
+						<td class="px-2">
+							{asset.name}
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
 	{:else}
 		<h3>Empty array</h3>
 	{/if}
-</dir>
