@@ -37,6 +37,8 @@ pub async fn init_bucket(
         .bucket;
     }
 
+    tracing::info!("Connected to S3");
+
     return bucket;
 }
 

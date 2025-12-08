@@ -71,7 +71,7 @@ async fn main() {
         .expect("Could not initialize TcpListener");
 
     tracing::info!(
-        "listening on {}",
+        "Started server - listening on {}",
         listener
             .local_addr()
             .expect("Could not convert listener to local address")
