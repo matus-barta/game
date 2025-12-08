@@ -4,6 +4,7 @@ use axum::{
     http::StatusCode,
     Json,
 };
+use redis::AsyncTypedCommands;
 
 /// GET -> /model/{id}
 /// get model by hash (id) and presigned url to s3
@@ -15,6 +16,9 @@ pub async fn get_model(
         tracing::error!("Wrong id length: {:?}", id.len());
         Err((StatusCode::BAD_REQUEST, "Wrong id length".to_string()))?
     }
+
+    let mut redis = app_state.redis.lock().await;
+    let data = redis.get(&id).await;
 
     let db_response = sqlx::query_as!(Asset, r#"SELECT id,name FROM "Asset" WHERE id = $1"#, id)
         .fetch_optional(&app_state.db_pool)
