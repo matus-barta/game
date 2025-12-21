@@ -11,3 +11,11 @@ pub async fn init_redis(redis_url: String) -> MultiplexedConnection {
 
     return conn;
 }
+
+pub fn cache_error<E>(err: E)
+where
+    E: std::error::Error,
+{
+    tracing::error!("{}", err.to_string());
+    metrics::counter!("cache error").increment(1);
+}
