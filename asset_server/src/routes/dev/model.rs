@@ -46,11 +46,15 @@ pub async fn create_model(
             .await
             .map_err(internal_error)?;
 
+        let dt = sqlx::types::chrono::Utc::now().naive_utc();
+
         let db_response = sqlx::query_as!(
             Asset,
-            r#"INSERT INTO "Asset" VALUES ($1, $2) RETURNING id, name"#,
+            r#"INSERT INTO "Asset"(id, name, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4) RETURNING id, name"#,
             format!("{:X}", &hash),
-            &file_name
+            &file_name,
+            dt,
+            dt
         )
         .fetch_one(&app_state.db_pool)
         .await
