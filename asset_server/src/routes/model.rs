@@ -18,6 +18,7 @@ pub async fn get_model(
     State(app_state): State<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<shared::requests::Model>, (StatusCode, String)> {
+    //validate length
     if id.len() != 64 {
         tracing::error!("Wrong id length: {:?}", id.len());
         Err((StatusCode::BAD_REQUEST, "Wrong id length".to_string()))?
@@ -25,7 +26,9 @@ pub async fn get_model(
 
     let mut redis = app_state.redis.lock().await;
     let response = match get_cached(redis.get(&id).await, &id) {
+        //return cached data
         Some(data) => data,
+        //read from db and s3
         None => {
             let db_response =
                 sqlx::query_as!(Asset, r#"SELECT id,name FROM "Asset" WHERE id = $1"#, id)
@@ -53,6 +56,7 @@ pub async fn get_model(
                 name: db_response.name,
             };
 
+            //cache the response
             match serde_json::to_string(&response) {
                 Ok(json) => match redis.set_ex(&id, json, TTL.into()).await {
                     Ok(_) => tracing::debug!("Set cached key: {}", &id),
@@ -61,6 +65,7 @@ pub async fn get_model(
                 Err(e) => cache_error(e),
             };
 
+            //return the response
             response
         }
     };
@@ -78,7 +83,8 @@ fn get_cached(
                 tracing::debug!("Cache hit - key: {} / value: {:?}", &id, &data);
                 counter!("cache hit").increment(1);
                 match serde_json::from_str(&data) {
-                    Ok(model) => Some(model),
+                    //FIXME: ??? we are deserializing the data and the serializing again,
+                    Ok(model) => Some(model), //the deserialization makes sure we get correct data but it may be some slowdown because it it
                     Err(e) => {
                         cache_error(e);
                         None
