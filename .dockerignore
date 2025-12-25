@@ -1,8 +1,12 @@
 .env
+*/.env
 target
 db
 docs
 tools
 *.md
+*/*.md
 .github
 client
+*/node_modules
+*/.svelte-kit
