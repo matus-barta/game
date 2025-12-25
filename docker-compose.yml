@@ -124,3 +124,4 @@ volumes:
   minio_data:
   postgres_data:
   pgadmin_data:
+  valkey_data:
