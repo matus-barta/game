@@ -1,23 +1,25 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO \"Asset\" VALUES ($1, $2) RETURNING id, name",
+  "query": "INSERT INTO \"Asset\"(id, name, \"createdAt\", \"updatedAt\") VALUES ($1, $2, $3, $4) RETURNING id, name",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Text"
+        "type_info": "Varchar"
       },
       {
         "ordinal": 1,
         "name": "name",
-        "type_info": "Varchar"
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
+        "Varchar",
         "Text",
-        "Varchar"
+        "Timestamp",
+        "Timestamp"
       ]
     },
     "nullable": [
@@ -25,5 +27,5 @@
       false
     ]
   },
-  "hash": "95cbb087096bf7297f029a8cc5671f2f8bf4f8cd74d907fea3aa681f4d504e75"
+  "hash": "185c5ef5641f91e19a7b021bb939daa4a3e1dcfdfb90831e2bb939021a70256f"
 }
