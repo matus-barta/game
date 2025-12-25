@@ -1,7 +1,9 @@
 use std::env;
+use std::sync::Arc;
 
 use axum::{extract::DefaultBodyLimit, routing::get, Router};
 use axum_prometheus::PrometheusMetricLayer;
+use redis::aio::MultiplexedConnection;
 use s3::Bucket;
 use sqlx::{Pool, Postgres};
 use tower_http::cors::CorsLayer;
@@ -39,9 +41,14 @@ async fn main() {
     let s3_bucket = env::var("S3_BUCKET").expect("Missing S3_BUCKET env var");
     //let s3_region = env::var("S3_REGION").unwrap_or("eu-central-1".into()); //TODO: not implemented rn
 
+    let redis_url = env::var("REDIS_URL").expect("Missing Redis URL env var");
+
     let app_state = AppState {
         db_pool: helpers::pg::init_pg(db_url).await,
         bucket: helpers::s3::init_bucket(s3_access_key, s3_secret_key, s3_api, s3_bucket).await,
+        redis: Arc::new(tokio::sync::Mutex::new(
+            helpers::redis::init_redis(redis_url).await,
+        )),
     };
 
     let (prometheus_layer, metrics_handle) = PrometheusMetricLayer::pair();
@@ -67,7 +74,7 @@ async fn main() {
         .expect("Could not initialize TcpListener");
 
     tracing::info!(
-        "listening on {}",
+        "Started server - listening on {}",
         listener
             .local_addr()
             .expect("Could not convert listener to local address")
@@ -83,4 +90,5 @@ struct AppState {
     // that holds some api specific state
     db_pool: Pool<Postgres>,
     bucket: Bucket,
+    redis: Arc<tokio::sync::Mutex<MultiplexedConnection>>,
 }
