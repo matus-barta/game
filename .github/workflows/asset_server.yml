@@ -32,9 +32,9 @@ jobs:
           use-fallback: false # optional, use github actions cache fallback, default true
 
           path: ${{ runner.temp }}/.buildx-cache
-          key: ${{ runner.os }}-buildx-asset_server-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-cargo-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-asset_server-
+            ${{ runner.os }}-buildx-cargo-
 
       - name: Login to private Gitea instance
         uses: docker/login-action@v3
@@ -46,7 +46,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./asset_server
+          context: .
           file: ./asset_server/Dockerfile
           push: true
           tags: gitea.home.anonymus09.com/admin/asset_server:latest

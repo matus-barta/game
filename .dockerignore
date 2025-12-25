@@ -1,0 +1,8 @@
+.env
+target
+db
+docs
+tools
+*.md
+.github
+client
