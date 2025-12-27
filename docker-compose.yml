@@ -117,6 +117,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
       db_prisma:
         condition: service_completed_successfully
     image: gitea.home.anonymus09.com/admin/asset_server:latest
