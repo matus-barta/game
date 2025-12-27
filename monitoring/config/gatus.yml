@@ -47,7 +47,7 @@ endpoints:
 
   - name: asset_server
     <<: *http-defaults
-    url: "http://srv.game.anonymus09.com:3001/"
+    url: "http://srv.game.anonymus09.com:3001/health"
 
   - name: s3 assets
     <<: *http-defaults
