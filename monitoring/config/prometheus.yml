@@ -23,7 +23,7 @@ scrape_configs:
           [
             "build.game.anonymus09.com:9100",
             "srv.game.anonymus09.com:9100",
-            "monitor.game.anonymus09.com:9100",
+            "monitoring.game.anonymus09.com:9100",
           ]
   #--------------Cadvisor EXPORTER----------------#
   - job_name: "cadvisor"
@@ -32,7 +32,7 @@ scrape_configs:
           [
             "build.game.anonymus09.com:8083",
             "srv.game.anonymus09.com:8083",
-            "monitor.game.anonymus09.com:8083",
+            "monitoring.game.anonymus09.com:8083",
           ]
   #--------------Asset Server----------------#
   - job_name: "asset_server"
