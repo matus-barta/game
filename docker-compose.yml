@@ -17,6 +17,9 @@ services:
       retries: 5
     volumes:
       - minio_data:/data
+    networks:
+      minio_net:
+      services_net:
     command: server /data --console-address ":9001"
 
   minio-init:
@@ -33,6 +36,8 @@ services:
       S3_BUCKET: ${S3_BUCKET}
       S3_API_URL: ${S3_API_URL}
     entrypoint: sh /init.sh
+    networks:
+      minio_net:
     volumes:
       - ./minio_init.sh:/init.sh
 
@@ -49,6 +54,8 @@ services:
     volumes:
       - ./valkey_config/valkey.conf:/etc/valkey/valkey.conf
       - valkey_data:/data
+    networks:
+      services_net:
     command: valkey-server /etc/valkey/valkey.conf
 
   postgres:
@@ -67,6 +74,9 @@ services:
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql
+    networks:
+      pg_net:
+      services_net:
 
   pgadmin:
     depends_on:
@@ -87,6 +97,8 @@ services:
       - pgadmin_data:/var/lib/pgadmin
       - ./pgadmin_config/servers.json:/pgadmin4/servers.json
       - ./pgadmin_config/preferences.json:/pgadmin4/preferences.json
+    networks:
+      pg_net:
 
   db_prisma:
     depends_on:
@@ -96,6 +108,8 @@ services:
     container_name: db_prisma
     environment:
       DATABASE_URL: ${DATABASE_URL}
+    networks:
+      pg_net:
 
   asset_server:
     depends_on:
@@ -119,9 +133,16 @@ services:
       SERVER_IP_PORT: 0.0.0.0:3001
     ports:
       - "3001:3001"
+    networks:
+      services_net:
 
 volumes:
   minio_data:
   postgres_data:
   pgadmin_data:
   valkey_data:
+
+networks:
+  minio_net:
+  pg_net:
+  services_net:
