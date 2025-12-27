@@ -4,6 +4,7 @@ networks:
 volumes:
   grafana_data:
   prometheus_data:
+  homepage_data:
 
 services:
   ### PROMETHEUS ###
@@ -46,7 +47,11 @@ services:
     ports:
       - 80:3000
     volumes:
-      - ./homepage:/app/config:private # Make sure your local config directory exists
+      - ./homepage/docker.yaml:/app/config/docker.yaml:ro
+      - ./homepage/services.yaml:/app/config/services.yaml:ro
+      - ./homepage/settings.yaml:/app/config/setting.yaml:ro
+      - ./homepage/widgets.yaml:/app/config/widgets.yaml:ro
+      - homepage_data:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
     restart: unless-stopped
     environment:
