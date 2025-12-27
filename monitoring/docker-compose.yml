@@ -35,11 +35,12 @@ services:
 
   gatus:
     image: twinproduction/gatus:latest
+    container_name: gatus
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
-      - ./config/gatus.yml:/config/config.yml
+      - ./config/gatus.yml:/config/config.yaml
 
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
