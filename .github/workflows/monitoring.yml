@@ -1,0 +1,37 @@
+name: Monitoring - deploy
+
+on:
+  push:
+    paths:
+      - "monitoring/homepage/**"
+      - "monitoring/docker-compose.yml"
+      - "monitoring/gatus.yml"
+      - "monitoring/prometheus.yml"
+      - ".github/workflows/monitoring.yml"
+    branches:
+      - "master"
+      - "main"
+
+jobs:
+  deploy:
+    runs-on: monitoring
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create deploy folder
+        run: |
+          mkdir -p ~/deploy
+          mkdir -p ~/deploy/homepage
+
+      - name: Copy files
+        run: |
+          rsync -av ./monitoring/ ~/deploy/ --exclude exporter
+
+      - name: Update and run compose
+        run: |
+          cd ~/deploy
+          docker compose pull && docker compose up -d
+
+      - name: Prune docker
+        run: |
+          docker system prune -f

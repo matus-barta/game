@@ -1,0 +1,6 @@
+title: Game monitoring
+startUrl: https//monitoring.game.anonymus09.com/
+
+cardBlur: md # sm, "", md, etc... see https://tailwindcss.com/docs/backdrop-blur
+theme: dark # or light
+color: slate

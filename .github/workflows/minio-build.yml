@@ -1,0 +1,33 @@
+name: Minio build cache - deploy
+
+on:
+  push:
+    paths:
+      - "tools/build_cache/docker-compose.yml"
+      - ".github/workflows/minio-build.yml"
+    branches:
+      - "master"
+      - "main"
+
+jobs:
+  deploy:
+    runs-on: build
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create minio folder
+        run: |
+          mkdir -p ~/minio
+
+      - name: Copy files
+        run: |
+          cp ./tools/build_cache/docker-compose.yml ~/minio/docker-compose.yml
+
+      - name: Update and run compose
+        run: |
+          cd ~/minio
+          docker compose pull && docker compose up -d
+
+      - name: Prune docker
+        run: |
+          docker system prune -f

@@ -1,0 +1,68 @@
+alerting:
+  discord:
+    webhook-url: "https://discord.com/api/webhooks/1213946337922392064/wRmJDgDrYr1NOU48X6kv16tZQS3oMtGMeYkeFRKXJ1WFO3IB8e_XhjKtnGwhfvbmsqgi"
+    default-alert:
+      description: "Health Check Failed"
+      send-on-resolved: true
+      failure-threshold: 2
+      success-threshold: 2
+
+endpoint-defaults-https: &https-defaults
+  group: HTTPS
+  interval: 30s
+  client:
+    timeout: 10s
+  conditions:
+    - "[STATUS] == 200"
+    - "[CERTIFICATE_EXPIRATION] > 48h"
+  alerts:
+    - type: discord
+
+endpoint-defaults-http: &http-defaults
+  group: HTTP
+  interval: 30s
+  client:
+    timeout: 10s
+    insecure: true
+  conditions:
+    - "[STATUS] == 200"
+  alerts:
+    - type: discord
+
+endpoint-defaults-ping: &ping-defaults
+  interval: 30s
+  conditions:
+    - "[CONNECTED] == true"
+  alerts:
+    - type: discord
+
+endpoints:
+  #------HTTPS------#
+
+  - name: gitea.home.anonymus09.com
+    <<: *https-defaults
+    url: "https://gitea.home.anonymus09.com/"
+
+  #------HTTP--------#
+
+  - name: asset_server
+    <<: *http-defaults
+    url: "https://game.home.anonymus09.com:3001/"
+
+  - name: s3
+    <<: *http-defaults
+    url: "https://game.home.anonymus09.com:9001/"
+
+  - name: pg_admin
+    <<: *http-defaults
+    url: "https://game.home.anonymus09.com:8888/"
+
+  #---------PING----------#
+  - name: srv.game.anonymus09.com - PING
+    <<: *ping-defaults
+    url: "icmp://srv.game.anonymus09.com"
+    group: VM
+  - name: build.game.anonymus09.com - PING
+    <<: *ping-defaults
+    url: "icmp://build.game.anonymus09.com"
+    group: VM

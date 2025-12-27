@@ -1,0 +1,6 @@
+- datetime:
+    text_size: xl
+    locale: sk
+    format:
+      dateStyle: short
+      timeStyle: short
