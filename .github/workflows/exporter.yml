@@ -3,10 +3,11 @@ name: Exporters - deploy
 on:
   push:
     paths:
-      - "monitoring/homepage/**"
-      - "monitoring/docker-compose.yml"
-      - "monitoring/config/**"
-      - ".github/workflows/monitoring.yml"
+      - "monitoring/exporter/docker-compose.yml"
+      - ".github/workflows/exporter.yml"
+    branches:
+      - "master"
+      - "main"
 
 jobs:
   deploy:
