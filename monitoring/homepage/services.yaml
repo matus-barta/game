@@ -30,7 +30,7 @@
 - Development:
     - pgAdmin 4:
         icon: pgadmin.svg
-        href: http://srv.gmae.anonymus09.com:8888/
+        href: http://srv.game.anonymus09.com:8888/
         description: Postgres DB management dashboard.
     - S3 assets:
         icon: minio.svg
