@@ -51,7 +51,7 @@ endpoints:
 
   - name: s3 assets
     <<: *http-defaults
-    url: "http://srv.game.anonymus09.com:9001/"
+    url: "http://srv.game.anonymus09.com:9001/health"
 
   - name: s3 build cache
     <<: *http-defaults
