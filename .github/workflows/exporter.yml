@@ -1,0 +1,36 @@
+name: Exporters - deploy
+
+on:
+  push:
+    paths:
+      - "monitoring/homepage/**"
+      - "monitoring/docker-compose.yml"
+      - "monitoring/config/**"
+      - ".github/workflows/monitoring.yml"
+
+jobs:
+  deploy:
+    strategy:
+      matrix:
+        runner: [exporter]
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create exporter folder
+        run: |
+          mkdir -p ~/exporter
+
+      - name: Copy files
+        run: |
+          cp ./monitoring/exporter/docker-compose.yml ~/exporter/docker-compose.yml
+
+      - name: Update and run compose
+        run: |
+          cd ~/exporter
+          docker compose pull && docker compose up -d
+
+      - name: Prune docker
+        run: |
+          docker system prune -f

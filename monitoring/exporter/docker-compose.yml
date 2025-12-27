@@ -1,0 +1,31 @@
+services:
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - "--path.rootfs=/host"
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - "/:/host:ro,rslave"
+
+  cadvisor_exporter:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor_exporter
+    ports:
+      - "8083:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+    command:
+      #- "--docker_only=true"
+      - "--housekeeping_interval=30s"
+      - "--disable_metrics=cpu_topology,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,advtcp"
+    restart: unless-stopped
