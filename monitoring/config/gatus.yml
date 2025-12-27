@@ -47,19 +47,19 @@ endpoints:
 
   - name: asset_server
     <<: *http-defaults
-    url: "http://game.home.anonymus09.com:3001/"
+    url: "http://srv.game.anonymus09.com:3001/"
 
   - name: s3 assets
     <<: *http-defaults
-    url: "http://game.home.anonymus09.com:9001/"
+    url: "http://srv.game.anonymus09.com:9001/"
 
   - name: s3 build cache
     <<: *http-defaults
-    url: "http://build.home.anonymus09.com:9001/"
+    url: "http://build.game.anonymus09.com:9001/"
 
   - name: pg_admin
     <<: *http-defaults
-    url: "http://game.home.anonymus09.com:8888/"
+    url: "http://srv.game.anonymus09.com:8888/"
 
   #---------PING----------#
   - name: srv.game.anonymus09.com - PING
