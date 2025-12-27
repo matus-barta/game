@@ -5,8 +5,8 @@ on:
     paths:
       - "monitoring/homepage/**"
       - "monitoring/docker-compose.yml"
-      - "monitoring/gatus.yml"
-      - "monitoring/prometheus.yml"
+      - "monitoring/config/gatus.yml"
+      - "monitoring/config/prometheus.yml"
       - ".github/workflows/monitoring.yml"
     branches:
       - "master"
