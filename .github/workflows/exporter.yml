@@ -13,7 +13,12 @@ jobs:
   deploy:
     strategy:
       matrix:
-        runner: [exporter]
+        runner:
+          [
+            build.game.anonymus09.com,
+            monitoring.game.anonymus09.com,
+            srv.game.anonymus09.com,
+          ]
 
     runs-on: ${{ matrix.runner }}
     steps:
