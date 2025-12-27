@@ -30,7 +30,9 @@ jobs:
       - name: Update and run compose
         run: |
           cd ~/deploy
-          docker compose pull && docker compose up -d
+          docker compose pull
+          docker compose down
+          docker compose up -d
 
       - name: Prune docker
         run: |
