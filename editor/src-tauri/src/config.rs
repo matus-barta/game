@@ -6,11 +6,13 @@ pub struct Config {
 }
 
 pub fn get_config() -> Result<Config, serde_json::Error> {
-    #[cfg(debug_assertions)]
-    let config = include_str!("../../local.config.json");
+    const DEBUG: bool = true;
 
-    #[cfg(not(debug_assertions))]
-    let config = include_str!("../../config.json");
+    let config = if cfg!(debug_assertions) || !DEBUG {
+        include_str!("../../config.json")
+    } else {
+        include_str!("../../local.config.json")
+    };
 
     serde_json::from_str::<Config>(config)
 }

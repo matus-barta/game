@@ -34,7 +34,7 @@ async fn get_model_list() -> Result<Vec<Asset>, String> {
 async fn post_asset(path: String) -> Result<Vec<Asset>, String> {
     println!("post asset invoke");
 
-    println!("FILE ---> {}", path);
+    println!("FILE -> {}", path);
 
     let config = get_config().map_err(|err| err.to_string())?;
 
@@ -51,13 +51,26 @@ async fn post_asset(path: String) -> Result<Vec<Asset>, String> {
         .await
         .map_err(|err| err.to_string())?;
 
-    let model = res
-        .json::<Vec<Asset>>()
-        .await
-        .map_err(|err| format!("Cant deserialize the data. Error: {}", err.to_string()))?;
-    println!("model: {:?}", model);
+    match res.status().as_u16() {
+        200..299 => {
+            let model = res
+                .json::<Vec<Asset>>()
+                .await
+                .map_err(|err| format!("Cant deserialize the data. Error: {}", err.to_string()))?;
+            println!("model -> {:?}", model);
 
-    Ok(model)
+            Ok(model)
+        }
+        status_code => Err(format!(
+            "Got {} status code, with msg \"{}\".",
+            status_code,
+            res.text().await.map_err(|err| format!(
+                "Got error inside error (can't read response): {}, the status code is: {}",
+                err.to_string(),
+                status_code
+            ))?
+        )),
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -67,6 +80,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
         .setup(|app| {
+            let config = get_config().expect("Can't load config!");
+            println!("Using server: {}", config.asset_server_url);
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
                 use tauri::Manager;
